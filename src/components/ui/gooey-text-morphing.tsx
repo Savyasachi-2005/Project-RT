@@ -11,6 +11,8 @@ interface GooeyTextProps {
   onSequenceComplete?: () => void
 }
 
+const FILTER_PAD = 12
+
 export function GooeyText({
   texts,
   morphTime = 0.5,
@@ -22,9 +24,53 @@ export function GooeyText({
 }: GooeyTextProps) {
   const text1Ref = React.useRef<HTMLSpanElement>(null)
   const text2Ref = React.useRef<HTMLSpanElement>(null)
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const sizerRef = React.useRef<HTMLSpanElement>(null)
   const filterId = React.useId().replace(/:/g, '')
   const completedRef = React.useRef(false)
   const longestText = texts.reduce((a, b) => (a.length > b.length ? a : b), '')
+
+  const textSizeClass = cn(
+    'text-[clamp(1.125rem,5.5vw+0.5rem,7.5rem)] leading-[0.95] tracking-[-0.03em]',
+    'sm:text-[clamp(1.5rem,6.5vw+0.5rem,7.5rem)] sm:leading-[1] sm:tracking-tight',
+    'md:text-[clamp(2.25rem,7.5vw,7.5rem)]',
+    textClassName,
+  )
+
+  const applyFontSize = React.useCallback((sizePx: number | null) => {
+    const size = sizePx === null ? '' : `${sizePx}px`
+    for (const el of [sizerRef.current, text1Ref.current, text2Ref.current]) {
+      if (el) el.style.fontSize = size
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const container = containerRef.current
+    const sizer = sizerRef.current
+    if (!container || !sizer) return
+
+    const fit = () => {
+      applyFontSize(null)
+
+      const available = container.clientWidth - FILTER_PAD * 2
+      let size = parseFloat(getComputedStyle(sizer).fontSize)
+      const minSize = 14
+
+      applyFontSize(size)
+      while (sizer.scrollWidth > available && size > minSize) {
+        size -= 1
+        applyFontSize(size)
+      }
+    }
+
+    const ro = new ResizeObserver(fit)
+    ro.observe(container)
+    fit()
+
+    document.fonts?.ready.then(fit).catch(() => undefined)
+
+    return () => ro.disconnect()
+  }, [longestText, textClassName, applyFontSize])
 
   React.useEffect(() => {
     if (texts.length === 0) return
@@ -88,7 +134,7 @@ export function GooeyText({
 
       cooldown -= dt
 
-        if (cooldown <= 0) {
+      if (cooldown <= 0) {
         if (shouldIncrementIndex) {
           if (!loop && textIndex === texts.length - 2) {
             if (!completedRef.current) {
@@ -118,7 +164,11 @@ export function GooeyText({
   }, [texts, morphTime, cooldownTime, loop, onSequenceComplete])
 
   return (
-    <div className={cn('relative mx-auto w-full', className)}>
+    <div
+      ref={containerRef}
+      className={cn('relative mx-auto w-full min-w-0 max-w-full', className)}
+      style={{ paddingLeft: FILTER_PAD, paddingRight: FILTER_PAD }}
+    >
       <svg className="absolute h-0 w-0" aria-hidden="true" focusable="false">
         <defs>
           <filter id={filterId}>
@@ -134,40 +184,43 @@ export function GooeyText({
         </defs>
       </svg>
 
-      {/* Sizer — prevents collapsed layout when spans are absolute */}
-      <span
-        aria-hidden
-        className={cn(
-          'invisible block text-center text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] xl:text-[7.5rem]',
-          'font-display font-bold uppercase tracking-tight',
-          textClassName,
-        )}
-      >
-        {longestText}
-      </span>
+      <div className="relative mx-auto w-fit max-w-full">
+        {/* Sizer — prevents collapsed layout when spans are absolute */}
+        <span
+          ref={sizerRef}
+          aria-hidden
+          className={cn(
+            'invisible block text-center whitespace-nowrap',
+            'font-display font-bold uppercase headline-tight',
+            textSizeClass,
+          )}
+        >
+          {longestText}
+        </span>
 
-      <div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ filter: `url(#${filterId})` }}
-      >
-        <span
-          ref={text1Ref}
-          className={cn(
-            'absolute inset-x-0 text-center text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] xl:text-[7.5rem]',
-            'select-none text-foreground',
-            'font-display font-bold uppercase tracking-tight headline-tight',
-            textClassName,
-          )}
-        />
-        <span
-          ref={text2Ref}
-          className={cn(
-            'absolute inset-x-0 text-center text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] xl:text-[7.5rem]',
-            'select-none text-foreground',
-            'font-display font-bold uppercase tracking-tight headline-tight',
-            textClassName,
-          )}
-        />
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ filter: `url(#${filterId})` }}
+        >
+          <span
+            ref={text1Ref}
+            className={cn(
+              'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap',
+              'select-none text-foreground',
+              'font-display font-bold uppercase headline-tight',
+              textSizeClass,
+            )}
+          />
+          <span
+            ref={text2Ref}
+            className={cn(
+              'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap',
+              'select-none text-foreground',
+              'font-display font-bold uppercase headline-tight',
+              textSizeClass,
+            )}
+          />
+        </div>
       </div>
     </div>
   )

@@ -50,7 +50,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
       </div>
 
       <motion.div
-        className="relative z-10 flex w-full max-w-4xl flex-col items-center px-6"
+        className="relative z-10 flex w-full min-w-0 max-w-4xl flex-col items-center px-4 sm:px-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -61,11 +61,11 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
           cooldownTime={loading.cooldownTime}
           loop={false}
           onSequenceComplete={handleSequenceComplete}
-          className="max-w-3xl"
+          className="w-full max-w-[min(100%,42rem)]"
         />
 
         <motion.p
-          className="mt-12 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground"
+          className="mt-8 max-w-[18rem] text-center font-mono text-[9px] uppercase leading-relaxed tracking-[0.14em] text-muted-foreground sm:mt-12 sm:max-w-md sm:text-[10px] sm:tracking-[0.22em]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.35, duration: 0.5 }}
@@ -73,7 +73,7 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
           {loading.tagline}
         </motion.p>
 
-        <div className="mt-10 h-px w-32 overflow-hidden rounded-full bg-border/50">
+        <div className="mt-8 h-px w-24 overflow-hidden rounded-full bg-border/50 sm:mt-10 sm:w-32">
           <div
             className="h-full bg-accent-bright transition-[width] duration-150 ease-out"
             style={{ width: `${progress}%` }}
