@@ -71,7 +71,7 @@ export const siteContent = {
   },
 
   projectIndus: {
-    eyebrow: '02 — THE PLATFORM',
+    eyebrow: 'THE PLATFORM',
     title: 'Project Indus',
     tagline: 'The intelligence platform behind every AI Operating System we build.',
     body: 'Project Indus is our internal, reusable AI platform — agent framework, voice intelligence, OCR, workflow engine, memory layer, and analytics. Customers do not buy Indus directly. They receive custom AI Operating Systems powered by it.',
@@ -143,10 +143,27 @@ export const siteContent = {
   contact: {
     eyebrow: 'CONTACT',
     title: "Let's build your operating system.",
-    email: 'hello@forraise.tech',
+    subtitle:
+      'Tell us about your business. We will get back to you to explore how an AI Operating System could work for you.',
+    email: 'forraisetech@gmail.com',
+    form: {
+      nameLabel: 'Name',
+      namePlaceholder: 'Your name',
+      emailLabel: 'Email',
+      emailPlaceholder: 'you@company.com',
+      companyLabel: 'Company',
+      companyPlaceholder: 'Business or industry (optional)',
+      messageLabel: 'Message',
+      messagePlaceholder: 'What does your business do? What would you want a system to handle?',
+      submit: 'Send message',
+      sending: 'Sending…',
+      success: 'Message sent. We will be in touch soon.',
+      error: 'Something went wrong. Please try again or email us directly.',
+      configError: 'Contact form is not configured yet.',
+    },
     social: [
       { label: 'LinkedIn', href: 'https://linkedin.com' },
-      { label: 'Twitter / X', href: 'https://x.com' },
+      { label: 'X', href: 'https://x.com' },
     ],
   },
 } as const

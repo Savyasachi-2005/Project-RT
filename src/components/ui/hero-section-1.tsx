@@ -169,7 +169,7 @@ export function HeroSection() {
             <div className="mx-auto mt-8 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-6 transition-all duration-500 group-hover:opacity-50 sm:grid-cols-4 sm:gap-x-12 sm:gap-y-10">
               {industries.map((name) => (
                 <div key={name} className="flex items-center justify-center">
-                  <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground sm:text-xs">
+                  <span className="font-mono text-[11px] tracking-wide text-muted-foreground sm:text-xs">
                     {name}
                   </span>
                 </div>

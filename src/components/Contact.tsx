@@ -1,4 +1,5 @@
 import { siteContent } from '../content/siteContent'
+import { ContactForm } from './ContactForm'
 import { ScrollReveal } from './ui/ScrollReveal'
 import { SectionHeader } from './ui/SectionHeader'
 import { Section } from './ui/Section'
@@ -9,19 +10,20 @@ export function Contact() {
   return (
     <Section id="contact">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
-        <SectionHeader eyebrow={contact.eyebrow} title={contact.title} />
+        <SectionHeader eyebrow={contact.eyebrow} title={contact.title} body={contact.subtitle} />
 
         <ScrollReveal delay={0.1}>
-          <a
-            href={`mailto:${contact.email}`}
-            className="mt-10 inline-block font-mono text-base text-accent-bright underline decoration-accent-bright/40 underline-offset-[6px] transition-all duration-500 hover:text-primary hover:decoration-accent-bright"
-          >
-            {contact.email}
-          </a>
+          <ContactForm />
         </ScrollReveal>
 
         <ScrollReveal delay={0.14}>
-          <div className="mt-8 flex flex-wrap gap-8">
+          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <a
+              href={`mailto:${contact.email}`}
+              className="font-mono text-sm text-accent-bright underline decoration-accent-bright/40 underline-offset-[6px] transition-all duration-500 hover:text-primary hover:decoration-accent-bright"
+            >
+              {contact.email}
+            </a>
             {contact.social.map((link) => (
               <a
                 key={link.label}
