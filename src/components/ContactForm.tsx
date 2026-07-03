@@ -3,7 +3,8 @@ import { siteContent } from '@/content/siteContent'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-const formUrl = import.meta.env.VITE_CONTACT_FORM_URL
+const formUrl =
+  import.meta.env.VITE_CONTACT_FORM_URL 
 
 const inputClass =
   'w-full border border-border/60 bg-muted/30 px-4 py-3 font-sans text-sm text-primary placeholder:text-tertiary transition-colors duration-300 focus:border-accent-bright/50 focus:bg-muted/50 focus:outline-none'
