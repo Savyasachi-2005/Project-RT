@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Analytics } from '@vercel/analytics/react'
 import { HeroSection } from '@/components/ui/hero-section-1'
 import { LoadingScreen } from './components/LoadingScreen'
 import { About } from './components/About'
@@ -43,6 +44,7 @@ export default function App() {
           <Contact />
         </motion.div>
       )}
+      <Analytics />
     </>
   )
 }
