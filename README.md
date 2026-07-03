@@ -1,69 +1,17 @@
-# ForRaise Technologies — Website
+# ForRaise Technologies
 
-Single-page marketing site for **ForRaise Technologies**, an AI Forward Deployed Engineering company building AI Operating Systems for businesses.
+**Software that learns businesses.**
 
-## Stack
+ForRaise Technologies is an AI Forward Deployed Engineering company. We embed with businesses, observe how they actually work, and build AI Operating Systems tailored to their reality — not the other way around.
 
-- React 19 + Vite + TypeScript
-- Tailwind CSS v4
-- Framer Motion
-- shadcn/ui components (`Button`, `GooeyText`, `AnimatedGroup`)
+Generic software has long asked businesses to adapt to standardized workflows. We invert that: our systems learn how each business operates, from the field up.
 
-## Features
+## What we build
 
-- Palantir-inspired dark UI with blue accents
-- Animated loading screen (`FOR` → `RAISE` → `TECHNOLOGIES`)
-- Responsive sections: Hero, About, Project Indus, Product, Founders, Contact
-- Content driven from `src/content/siteContent.ts`
-- Vercel-ready deployment config
+Custom AI Operating Systems for how teams already run — powered by **Project Indus**, our internal intelligence platform. Each deployment is industry-specific (TeaOS, BakeryOS, ClinicOS, and more), built through deep field observation, not generic dashboards.
 
-## Getting started
+## This project
 
-```bash
-npm install
-npm run dev
-```
+The public website for ForRaise Technologies — a single-page introduction to who we are, what we believe, and how we work.
 
-Open [http://localhost:5173](http://localhost:5173).
 
-## Build
-
-```bash
-npm run build
-npm run preview
-```
-
-## Deploy to Vercel
-
-1. Push this repo to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Vercel auto-detects Vite — no env vars required
-
-Build settings (also in `vercel.json`):
-
-| Setting | Value |
-|---------|-------|
-| Build command | `npm run build` |
-| Output directory | `dist` |
-| Node.js | 20+ |
-
-## Project structure
-
-```
-src/
-  components/     # Page sections + UI primitives
-  content/        # All site copy (edit here)
-  hooks/          # Scroll spy, etc.
-public/
-  images/         # Static assets (hero image: forr.png)
-```
-
-## Customization
-
-- **Copy:** `src/content/siteContent.ts`
-- **Hero image:** replace `public/images/forr.png`
-- **Loading timing:** `loading` block in `siteContent.ts`
-
-## License
-
-Private — ForRaise Technologies.
