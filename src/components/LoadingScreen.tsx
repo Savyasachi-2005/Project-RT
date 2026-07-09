@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { GooeyText } from '@/components/ui/gooey-text-morphing'
+import { GooeyText, type GooeySyncState } from '@/components/ui/gooey-text-morphing'
 import { SiteAtmosphere } from '@/components/ui/site-atmosphere'
 import { siteContent } from '@/content/siteContent'
 
@@ -8,30 +8,81 @@ type LoadingScreenProps = {
   onComplete: () => void
 }
 
+export function getLoadingSyncState(
+  elapsedMs: number,
+  wordCount: number,
+  sequenceMs: number,
+  morphMs: number,
+): GooeySyncState {
+  const lastIndex = Math.max(wordCount - 1, 0)
+  const displayMs =
+    (sequenceMs - morphMs * Math.max(wordCount - 1, 0)) / Math.max(wordCount, 1)
+
+  if (elapsedMs >= sequenceMs) {
+    return { currentIndex: lastIndex, nextIndex: lastIndex, morphFraction: 0 }
+  }
+
+  let cursor = 0
+
+  for (let i = 0; i < wordCount; i++) {
+    if (elapsedMs < cursor + displayMs) {
+      return { currentIndex: i, nextIndex: i, morphFraction: 0 }
+    }
+    cursor += displayMs
+
+    if (i < lastIndex) {
+      if (elapsedMs < cursor + morphMs) {
+        return {
+          currentIndex: i,
+          nextIndex: i + 1,
+          morphFraction: (elapsedMs - cursor) / morphMs,
+        }
+      }
+      cursor += morphMs
+    }
+  }
+
+  return { currentIndex: lastIndex, nextIndex: lastIndex, morphFraction: 0 }
+}
+
 export function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const { loading } = siteContent
-  const [progress, setProgress] = useState(0)
+  const [elapsedMs, setElapsedMs] = useState(0)
+
+  const totalMs = loading.durationMs + loading.holdAfterMs
+
+  const sync = useMemo(
+    () =>
+      getLoadingSyncState(
+        elapsedMs,
+        loading.words.length,
+        loading.durationMs,
+        loading.morphMs,
+      ),
+    [elapsedMs, loading.words.length, loading.durationMs, loading.morphMs],
+  )
 
   useEffect(() => {
     const start = performance.now()
-    const duration = loading.durationMs
-
     let frameId = 0
+
     const tick = (now: number) => {
       const elapsed = now - start
-      setProgress(Math.min((elapsed / duration) * 100, 100))
-      if (elapsed < duration) {
+      setElapsedMs(elapsed)
+
+      if (elapsed < totalMs) {
         frameId = requestAnimationFrame(tick)
       }
     }
 
     frameId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frameId)
-  }, [loading.durationMs])
+    const done = window.setTimeout(onComplete, totalMs)
 
-  const handleSequenceComplete = useCallback(() => {
-    window.setTimeout(onComplete, loading.holdAfterMs)
-  }, [onComplete, loading.holdAfterMs])
+    return () => {
+      cancelAnimationFrame(frameId)
+      window.clearTimeout(done)
+    }
+  }, [totalMs, onComplete])
 
   return (
     <motion.div
@@ -51,16 +102,13 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
       <motion.div
         className="relative z-10 flex w-full min-w-0 max-w-4xl flex-col items-center px-4 sm:px-6"
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       >
         <GooeyText
           texts={[...loading.words]}
-          morphTime={loading.morphTime}
-          cooldownTime={loading.cooldownTime}
-          loop={false}
-          onSequenceComplete={handleSequenceComplete}
+          sync={sync}
           className="w-full max-w-[min(100%,42rem)]"
         />
 
@@ -68,17 +116,10 @@ export function LoadingScreen({ onComplete }: LoadingScreenProps) {
           className="mt-8 max-w-[18rem] text-center font-mono text-[9px] uppercase leading-relaxed tracking-[0.14em] text-muted-foreground sm:mt-12 sm:max-w-md sm:text-[10px] sm:tracking-[0.22em]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.35, duration: 0.5 }}
+          transition={{ delay: 0.15, duration: 0.35 }}
         >
           {loading.tagline}
         </motion.p>
-
-        <div className="mt-8 h-px w-24 overflow-hidden rounded-full bg-border/50 sm:mt-10 sm:w-32">
-          <div
-            className="h-full bg-accent-bright transition-[width] duration-150 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
       </motion.div>
     </motion.div>
   )

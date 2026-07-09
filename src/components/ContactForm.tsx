@@ -26,7 +26,7 @@ export function ContactForm() {
     const form = e.currentTarget
     const data = new FormData(form)
     const name = String(data.get('name') ?? '')
-    data.set('_subject', `ForRaise contact — ${name}`)
+    data.set('_subject', `AsForYou contact — ${name}`)
 
     setStatus('sending')
 

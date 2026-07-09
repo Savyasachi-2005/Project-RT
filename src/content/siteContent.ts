@@ -1,8 +1,8 @@
 export const siteContent = {
   company: {
-    name: 'ForRaise Technologies',
+    name: 'AsForYou Technologies',
     tagline: 'Software that learns businesses.',
-    copyright: 'ForRaise Technologies © 2026',
+    copyright: 'AsForYou Technologies © 2026',
     footerTagline: 'AI Operating Systems, built in the field.',
   },
 
@@ -21,7 +21,7 @@ export const siteContent = {
     eyebrow: 'AI Forward Deployed Engineering',
     headline: 'Software should learn how your business operates - not the other way around.',
     subheadline:
-      'ForRaise Technologies is an AI Forward Deployed Engineering company. We embed with businesses, observe how they actually work, and build AI Operating Systems tailored to their reality.',
+      'AsForYou Technologies is an AI Forward Deployed Engineering company. We embed with businesses, observe how they actually work, and build AI Operating Systems tailored to their reality.',
     primaryCta: "See what we're building",
     primaryCtaHref: '#project-indus',
     secondaryCta: 'Get in touch',
@@ -34,18 +34,17 @@ export const siteContent = {
   },
 
   loading: {
-    words: ['FOR', 'RAISE', 'TECHNOLOGIES'],
-    morphTime: 0.7,
-    cooldownTime: 0.3,
+    words: ['AS', 'FORYOU', 'TECHNOLOGIES'],
+    morphMs: 600,
     durationMs: 4500,
-    holdAfterMs: 600,
+    holdAfterMs: 800,
     tagline: 'AI Operating Systems, built in the field.',
   },
 
   about: {
     eyebrow: 'WHY WE EXIST',
     title: 'Generic software forces businesses to adapt. We invert that.',
-    body: 'For forty years, enterprise software asked millions of businesses to adopt one standardized workflow. We ask a different question: how do we build systems that learn how each business actually operates? ForRaise builds AI-driven operating systems that adapt to how your team already runs — not the other way around.',
+    body: 'For forty years, enterprise software asked millions of businesses to adopt one standardized workflow. We ask a different question: how do we build systems that learn how each business actually operates? AsForYou builds AI-driven operating systems that adapt to how your team already runs — not the other way around.',
     beliefs: [
       {
         title: 'Software should adapt to the business',
@@ -145,7 +144,7 @@ export const siteContent = {
     title: "Let's build your operating system.",
     subtitle:
       'Tell us about your business. We will get back to you to explore how an AI Operating System could work for you.',
-    email: 'forraisetech@gmail.com',
+    email: 'asforyoutech@gmail.com',
     form: {
       nameLabel: 'Name',
       namePlaceholder: 'Your name',

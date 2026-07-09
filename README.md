@@ -1,8 +1,8 @@
-# ForRaise Technologies
+# AsForYou Technologies
 
 **Software that learns businesses.**
 
-ForRaise Technologies is an AI Forward Deployed Engineering company. We embed with businesses, observe how they actually work, and build AI Operating Systems tailored to their reality — not the other way around.
+AsForYou Technologies is an AI Forward Deployed Engineering company. We embed with businesses, observe how they actually work, and build AI Operating Systems tailored to their reality — not the other way around.
 
 Generic software has long asked businesses to adapt to standardized workflows. We invert that: our systems learn how each business operates, from the field up.
 
@@ -12,6 +12,4 @@ Custom AI Operating Systems for how teams already run — powered by **Project I
 
 ## This project
 
-The public website for ForRaise Technologies — a single-page introduction to who we are, what we believe, and how we work.
-
-
+The public website for AsForYou Technologies — a single-page introduction to who we are, what we believe, and how we work.

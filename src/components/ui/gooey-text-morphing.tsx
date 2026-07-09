@@ -1,26 +1,59 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
+export type GooeySyncState = {
+  currentIndex: number
+  nextIndex: number
+  morphFraction: number
+}
+
 interface GooeyTextProps {
   texts: string[]
   morphTime?: number
   cooldownTime?: number
+  initialCooldown?: number
   loop?: boolean
   className?: string
   textClassName?: string
   onSequenceComplete?: () => void
+  sync?: GooeySyncState
 }
 
 const FILTER_PAD = 12
+
+function applyMorph(
+  text1: HTMLSpanElement,
+  text2: HTMLSpanElement,
+  fraction: number,
+) {
+  const f = Math.min(Math.max(fraction, 0.001), 1)
+  const inverse = Math.min(Math.max(1 - fraction, 0.001), 1)
+
+  text2.style.filter = `blur(${Math.min(8 / f - 8, 100)}px)`
+  text2.style.opacity = `${Math.pow(f, 0.4) * 100}%`
+  text1.style.filter = `blur(${Math.min(8 / inverse - 8, 100)}px)`
+  text1.style.opacity = `${Math.pow(inverse, 0.4) * 100}%`
+}
+
+function showWord(text1: HTMLSpanElement, text2: HTMLSpanElement, word: string) {
+  text1.textContent = word
+  text2.textContent = word
+  text1.style.filter = ''
+  text1.style.opacity = '100%'
+  text2.style.filter = ''
+  text2.style.opacity = '0%'
+}
 
 export function GooeyText({
   texts,
   morphTime = 0.5,
   cooldownTime = 0.25,
+  initialCooldown,
   loop = true,
   className,
   textClassName,
   onSequenceComplete,
+  sync,
 }: GooeyTextProps) {
   const text1Ref = React.useRef<HTMLSpanElement>(null)
   const text2Ref = React.useRef<HTMLSpanElement>(null)
@@ -29,6 +62,7 @@ export function GooeyText({
   const filterId = React.useId().replace(/:/g, '')
   const completedRef = React.useRef(false)
   const longestText = texts.reduce((a, b) => (a.length > b.length ? a : b), '')
+  const firstHold = initialCooldown ?? cooldownTime
 
   const textSizeClass = cn(
     'text-[clamp(1.125rem,5.5vw+0.5rem,7.5rem)] leading-[0.95] tracking-[-0.03em]',
@@ -72,96 +106,98 @@ export function GooeyText({
     return () => ro.disconnect()
   }, [longestText, textClassName, applyFontSize])
 
+  React.useLayoutEffect(() => {
+    if (!sync || !text1Ref.current || !text2Ref.current) return
+
+    const text1 = text1Ref.current
+    const text2 = text2Ref.current
+    const from = texts[sync.currentIndex] ?? ''
+    const to = texts[sync.nextIndex] ?? from
+
+    if (sync.currentIndex === sync.nextIndex || sync.morphFraction <= 0) {
+      showWord(text1, text2, from)
+      return
+    }
+
+    text1.textContent = from
+    text2.textContent = to
+    applyMorph(text1, text2, sync.morphFraction)
+  }, [sync, texts])
+
   React.useEffect(() => {
-    if (texts.length === 0) return
+    if (sync || texts.length === 0) return
 
     completedRef.current = false
-    let textIndex = texts.length - 1
-    let time = new Date()
-    let morph = 0
-    let cooldown = cooldownTime
+    let currentIndex = 0
+    let phase: 'hold' | 'morph' = 'hold'
+    let elapsed = 0
+    let lastTime = performance.now()
     let frameId = 0
 
-    const setMorph = (fraction: number) => {
+    const assignTexts = (index: number) => {
       if (!text1Ref.current || !text2Ref.current) return
 
-      text2Ref.current.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`
-      text2Ref.current.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`
-
-      fraction = 1 - fraction
-      text1Ref.current.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`
-      text1Ref.current.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`
+      const nextIndex = loop ? (index + 1) % texts.length : Math.min(index + 1, texts.length - 1)
+      text1Ref.current.textContent = texts[index]
+      text2Ref.current.textContent = texts[nextIndex]
+      showWord(text1Ref.current, text2Ref.current, texts[index])
     }
 
-    const doCooldown = () => {
-      morph = 0
-      if (!text1Ref.current || !text2Ref.current) return
-
-      text2Ref.current.style.filter = ''
-      text2Ref.current.style.opacity = '100%'
-      text1Ref.current.style.filter = ''
-      text1Ref.current.style.opacity = '0%'
+    const complete = () => {
+      if (completedRef.current) return
+      completedRef.current = true
+      onSequenceComplete?.()
+      cancelAnimationFrame(frameId)
     }
 
-    const doMorph = () => {
-      morph -= cooldown
-      cooldown = 0
-      let fraction = morph / morphTime
+    assignTexts(0)
 
-      if (fraction > 1) {
-        cooldown = cooldownTime
-        fraction = 1
-      }
-
-      setMorph(fraction)
-    }
-
-    const initTexts = () => {
-      if (!text1Ref.current || !text2Ref.current) return
-      text1Ref.current.textContent = texts[textIndex % texts.length]
-      text2Ref.current.textContent = texts[(textIndex + 1) % texts.length]
-      doCooldown()
-    }
-
-    initTexts()
-
-    function animate() {
+    function animate(now: number) {
       frameId = requestAnimationFrame(animate)
-      const newTime = new Date()
-      const shouldIncrementIndex = cooldown > 0
-      const dt = (newTime.getTime() - time.getTime()) / 1000
-      time = newTime
+      const dt = (now - lastTime) / 1000
+      lastTime = now
+      elapsed += dt
 
-      cooldown -= dt
+      if (!text1Ref.current || !text2Ref.current) return
 
-      if (cooldown <= 0) {
-        if (shouldIncrementIndex) {
-          if (!loop && textIndex === texts.length - 2) {
-            if (!completedRef.current) {
-              completedRef.current = true
-              onSequenceComplete?.()
-            }
-            cancelAnimationFrame(frameId)
+      if (phase === 'hold') {
+        const holdDuration = currentIndex === 0 ? firstHold : cooldownTime
+        const isLastWord = !loop && currentIndex === texts.length - 1
+
+        if (elapsed >= holdDuration) {
+          if (isLastWord) {
+            complete()
             return
           }
 
-          const nextIndex = (textIndex + 1) % texts.length
-          textIndex = nextIndex
-          if (text1Ref.current && text2Ref.current) {
-            text1Ref.current.textContent = texts[textIndex % texts.length]
-            text2Ref.current.textContent = texts[(textIndex + 1) % texts.length]
-          }
+          phase = 'morph'
+          elapsed = 0
         }
-        doMorph()
       } else {
-        doCooldown()
+        const fraction = Math.min(elapsed / morphTime, 1)
+        applyMorph(text1Ref.current, text2Ref.current, fraction)
+
+        if (fraction >= 1) {
+          currentIndex += 1
+
+          if (!loop && currentIndex >= texts.length - 1) {
+            assignTexts(currentIndex)
+            phase = 'hold'
+            elapsed = 0
+            return
+          }
+
+          assignTexts(currentIndex)
+          phase = 'hold'
+          elapsed = 0
+        }
       }
     }
 
     frameId = requestAnimationFrame(animate)
 
     return () => cancelAnimationFrame(frameId)
-  }, [texts, morphTime, cooldownTime, loop, onSequenceComplete])
+  }, [sync, texts, morphTime, cooldownTime, firstHold, loop, onSequenceComplete])
 
   return (
     <div
@@ -185,7 +221,6 @@ export function GooeyText({
       </svg>
 
       <div className="relative mx-auto w-fit max-w-full">
-        {/* Sizer — prevents collapsed layout when spans are absolute */}
         <span
           ref={sizerRef}
           aria-hidden

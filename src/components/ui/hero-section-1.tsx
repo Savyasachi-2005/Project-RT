@@ -147,7 +147,7 @@ export function HeroSection() {
                   <img
                     className="relative w-full rounded-xl object-cover object-center"
                     src={images.hero}
-                    alt="ForRaise operating system dashboard on laptop"
+                    alt="AsForYou operating system dashboard on laptop"
                   />
                 </div>
               </div>
